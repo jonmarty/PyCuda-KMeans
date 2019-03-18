@@ -72,7 +72,7 @@ def kmeans_iter(x, y, c_x, c_y, dist, cluster, cluster_old, cluster_count):
     kmeans(x, y, c_x, c_y, dist, cluster, cluster_count, block = (K,1,1), grid = (N,1))
     reset(c_x, c_y, cluster_count, block = (K,1,1), grid = (1,1))
     recompute(x, y, c_x, c_y, dist, cluster, cluster_count, block = (N,1,1), grid = (K,1))
-def KMEANS(x,y):
+def kmeans(x,y):
     c_x = gpuarray.to_gpu(np.random.random(K).astype(np.float32) * 10)
     c_y = gpuarray.to_gpu(np.random.random(K).astype(np.float32) * 10)
     dist = gpuarray.to_gpu(np.empty((N,K)).astype(np.float32))
