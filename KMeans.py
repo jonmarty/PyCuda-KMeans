@@ -4,14 +4,6 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 import numpy as np
 
-N = 10
-K = 3
-
-a = np.random.random(N,2)
-a_gpu = gpuarray.to_gpu(a)
-
-centroids = np.random.random(K,2)
-
 mod = SourceModule("""
 __global__ void kmeans(float *x, float *y, float *c_x, float *c_y, float **dist, int *cluster, int *cluster_count){
     unsigned int i = blockIdx.x;
@@ -72,7 +64,9 @@ def kmeans_iter(x, y, c_x, c_y, dist, cluster, cluster_old, cluster_count):
     kmeans(x, y, c_x, c_y, dist, cluster, cluster_count, block = (K,1,1), grid = (N,1))
     reset(c_x, c_y, cluster_count, block = (K,1,1), grid = (1,1))
     recompute(x, y, c_x, c_y, dist, cluster, cluster_count, block = (N,1,1), grid = (K,1))
-def kmeans(x,y):
+def kmeans(x,y,K=3):
+    assert len(x) == len(y)
+    N = len(x)
     c_x = gpuarray.to_gpu(np.random.random(K).astype(np.float32) * 10)
     c_y = gpuarray.to_gpu(np.random.random(K).astype(np.float32) * 10)
     dist = gpuarray.to_gpu(np.empty((N,K)).astype(np.float32))
@@ -84,5 +78,10 @@ def kmeans(x,y):
         if cluster_old.get() == cluster.get():
             break
     return cluster.get(), (c_x.get(), c_y.get())
-np.int
-         )
+
+if __name__ == "__main__":
+    N = 10
+    K = 3
+    x = np.random.random(N)
+    y = np.random.random(N)
+    print(kmeans(x,y,K))
